@@ -19,18 +19,24 @@ public:
     V z1() const { return z1_; }
     V z2() const { return z2_; }
 
+    template<unsigned N>
+    friend void swap(MultiComplex<N>& lhs, MultiComplex<N>& rhs) {
+        using std::swap;
+        swap(lhs.z1, rhs.z1);
+        swap(lhs.z2, rhs.z2);
+    }
     // overload operator unary -
-    MultiComplex<V> operator-() const {
-        return MultiComplex<V>(-z1_, -z2_);
+    MultiComplex<N> operator-() const {
+        return MultiComplex<N>(-z1_, -z2_);
     }
     // overload operator unary +
-    MultiComplex<V> operator+() const {
-        return MultiComplex<V>(z1_, z2_);
+    MultiComplex<N> operator+() const {
+        return MultiComplex<N>(z1_, z2_);
     }
 
     // overload operator = 
-    MultiComplex<V>& operator=(MultiComplex<V> w) {
-        swap(w);
+    MultiComplex<N>& operator=(MultiComplex<N> w) {
+        swap(*this, w);
         return *this;
     }
     // overload operator +
