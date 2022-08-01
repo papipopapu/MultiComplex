@@ -91,17 +91,6 @@ MultiComplex<MultiComplex<V>> operator+(const MultiComplex<V>& w, MultiComplex<M
     z.z1() += w;
     return z;
 }
-
-
-
-
-
-
-
-
-
-
-
 template<class V>
 MultiComplex<V> operator+(MultiComplex<V> z, const Complex& w) {
     z += w;
