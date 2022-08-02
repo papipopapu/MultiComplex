@@ -5,36 +5,9 @@
 #include<chrono>
 
 namespace mComplex {
-#define MAX(N1, N2, T1, T2) mComplex::max<(N1 > N2), N1, N2, T1, T2>
 #define ENFORCE(x) typename = typename std::enable_if<(x)>::type
-#define RIGHT_TYPE(N1, N2, T1, T2) MultiComplex<MAX(N1, N2, T1, T2)::value, typename MAX(N1, N2, T1, T2)::type>
 
-template<class T>
-using Complex = std::complex<T>;
-template<unsigned N, class T>
-class MultiComplex;
-
-template<bool, unsigned N1, unsigned N2, class T1, class T2>
-struct max {
-    typedef T1 type;
-    static constexpr unsigned value = N1;
-};
-template<unsigned N1, unsigned N2, class T1, class T2> 
-struct max <true, N1, N2, T1, T2>{
-    typedef T2 type;
-    static constexpr unsigned value = N2;
-};
-
-//////////////////////////////////////////////
-
-
-
-
-
-
-
-
-template<unsigned N, class T> // bicomplex as N = 2
+template<unsigned N, class T> // C^N
 struct MultiComplex { // only allow operations between same order MultiComplex
 
     MultiComplex<N-1, T> z1, z2;  
@@ -55,7 +28,7 @@ struct MultiComplex { // only allow operations between same order MultiComplex
     MultiComplex<N, T>& operator+=(T2 w) { z1 += w; return *this; }
 
     template<class T2>
-    MultiComplex<N, T>& operator+=(const Complex<T2>& w) { z1 += w; return *this; }
+    MultiComplex<N, T>& operator+=(const std::complex<T2>& w) { z1 += w; return *this; }
 
     // interact with same order MultiComplex
     template<class T2>
@@ -79,7 +52,20 @@ struct MultiComplex { // only allow operations between same order MultiComplex
     template<class T2, ENFORCE(std::is_arithmetic<T2>::value)>
     MultiComplex<N, T>& operator*=(T2 w) { z1 *= w; z2 *= w; return *this; }
 
-  
+    template<class T2>
+    MultiComplex<N, T>& operator/=(const MultiComplex<N, T2>& w) {
+        MultiComplex<N-1, T> den = w.z1 * w.z1 + w.z2 * w.z2;
+        MultiComplex<N-1, T> tmp = z2 * w.z1 - z1 * w.z2;
+        z1 = (z1 * w.z1 + z2 * w.z2) / den; 
+        z2 = tmp                    / den;
+        return *this; }
+
+    template<class T2>
+    MultiComplex<N, T>& operator/=(const std::complex<T2>& w) { z1 /= w; z2 /= w; return *this; }
+
+    template<class T2, ENFORCE(std::is_arithmetic<T2>::value)>
+    MultiComplex<N, T>& operator/=(T2 w) { z1 /= w; z2 /= w; return *this; }
+
 
     // overload cout MultiComplex
     friend std::ostream& operator<<(std::ostream& os, const MultiComplex<N, T>& w) {
@@ -123,7 +109,11 @@ MultiComplex<N, T1> operator*(MultiComplex<N, T1> z, const T2& w) { z *= w; retu
 template<unsigned N, class T1, class T2, ENFORCE(std::is_arithmetic<T2>::value)>
 MultiComplex<N, T1> operator*(const T2& w, MultiComplex<N, T1> z) { z *= w; return z; }
 
+template<unsigned N, class T1, class T2>
+bool operator==(const MultiComplex<N, T1>& z, const MultiComplex<N, T2>& w) { return z.z1 == w.z1 && z.z2 == w.z2; }
 
+template<unsigned N, class T1, class T2>
+bool operator!=(const MultiComplex<N, T1>& z, const MultiComplex<N, T2>& w) { return !(z==w); }
 
 template<class T>
 struct MultiComplex<0, T> : public std::complex<T> { // special shit for bicomplex N = 0 (2^(1+N) complex numbers)
@@ -139,8 +129,6 @@ void superImag(MultiComplex<0, T> &z, T *val) {
     *val = z.imag();
 }
 
-
-
 template<unsigned N, class T>
 void randomize(MultiComplex<N, T> &z) {
     
@@ -149,32 +137,26 @@ void randomize(MultiComplex<N, T> &z) {
 }
 template<class T>
 void randomize(MultiComplex<0, T> &z) {
+    // create random MultiComplex with deterministic seed
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<T> dist(-1, 1);
     z = MultiComplex<0, T>(dist(gen), dist(gen));
-
-    
 }
+
+template<unsigned N, class T>
+void toOne(MultiComplex<N, T> &z) {
+    toOne(z.real());
+    toOne(z.imag());
+}
+template<class T>
+void toOne(MultiComplex<0, T> &z) {
+    z = MultiComplex<0, T>(1, 0);
+}
+
+
+
 
 };
 
 
-
-
-int main() {
-    using namespace mComplex;
-    MultiComplex<1, long double> z1;
-    MultiComplex<1, long double> z2;
-
-
-
-    randomize(z1);
-    randomize(z2);
-    std::cout << z1 << std::endl;
-    std::cout << z2 << std::endl;
-    z1 *= z2;
-    std::cout << z1 << std::endl;
- 
-    return 0;
-}
