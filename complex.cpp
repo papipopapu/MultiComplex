@@ -4,7 +4,7 @@
 #include<random>
 #include<chrono>
 
-namespace mComplex {
+namespace MComplex {
 #define ENFORCE(x) typename = typename std::enable_if<(x)>::type
 
 template<unsigned N, class T> // C^N
@@ -69,9 +69,11 @@ struct MultiComplex { // only allow operations between same order MultiComplex
 
     // overload cout MultiComplex
     friend std::ostream& operator<<(std::ostream& os, const MultiComplex<N, T>& w) {
-        os << "(" << w.z1 << " + " << w.z2 << "i" << N << ")";
+        os << "(" << w.z1 << " + " << w.z2 << "i" << N+1 << ")";
         return os;
     }
+
+
 
 
 };
@@ -108,6 +110,17 @@ template<unsigned N, class T1, class T2, ENFORCE(std::is_arithmetic<T2>::value)>
 MultiComplex<N, T1> operator*(MultiComplex<N, T1> z, const T2& w) { z *= w; return z; }
 template<unsigned N, class T1, class T2, ENFORCE(std::is_arithmetic<T2>::value)>
 MultiComplex<N, T1> operator*(const T2& w, MultiComplex<N, T1> z) { z *= w; return z; }
+// all divisions
+template<unsigned N, class T1, class T2>
+MultiComplex<N, T1> operator/(MultiComplex<N, T1> z, const MultiComplex<N, T2>& w) { z /= w; return z; }
+template<unsigned N, class T1, class T2>
+MultiComplex<N, T1> operator/(MultiComplex<N, T1> z, const std::complex<T2>& w) { z /= w; return z; }
+template<unsigned N, class T1, class T2>
+MultiComplex<N, T1> operator/(const std::complex<T2>& w, MultiComplex<N, T1> z) { z /= w; return z; }
+template<unsigned N, class T1, class T2, ENFORCE(std::is_arithmetic<T2>::value)>
+MultiComplex<N, T1> operator/(MultiComplex<N, T1> z, const T2& w) { z /= w; return z; }
+template<unsigned N, class T1, class T2, ENFORCE(std::is_arithmetic<T2>::value)>
+MultiComplex<N, T1> operator/(const T2& w, MultiComplex<N, T1> z) { z /= w; return z; }
 
 template<unsigned N, class T1, class T2>
 bool operator==(const MultiComplex<N, T1>& z, const MultiComplex<N, T2>& w) { return z.z1 == w.z1 && z.z2 == w.z2; }
@@ -152,6 +165,24 @@ void toOne(MultiComplex<N, T> &z) {
 template<class T>
 void toOne(MultiComplex<0, T> &z) {
     z = MultiComplex<0, T>(1, 0);
+}
+
+template<unsigned N, class T, ENFORCE(N==0)>
+MultiComplex<0, T> imagUnit() {
+    return MultiComplex<0, T>(0, 1);
+}
+template<unsigned N, class T, ENFORCE(N==0)>
+MultiComplex<0, T> realUnit() {
+    return MultiComplex<0, T>(1, 0);
+}
+
+template<unsigned N, class T, ENFORCE(N>0)>
+MultiComplex<N, T> realUnit() {
+    return MultiComplex<N, T>{realUnit<N-1, T>(), MultiComplex<N-1, T>()};
+}
+template<unsigned N, class T, ENFORCE(N>0)>
+MultiComplex<N, T> imagUnit() {
+    return MultiComplex<N, T>{MultiComplex<N-1, T>(), realUnit<N-1, T>()};
 }
 
 
