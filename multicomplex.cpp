@@ -1,7 +1,7 @@
 #include<iostream>
-#include<string>
+
+
 #include<random>
-#include<chrono>
 
 namespace MComplex {
 #define ENFORCE(x) typename = typename std::enable_if<(x)>::type
@@ -196,13 +196,10 @@ bool operator!=(const MultiComplex<0, T1>& z, const MultiComplex<0, T2>& w) { re
 
 
 template<unsigned N, class T>
-void superImag(MultiComplex<N, T> &z, T *val) { 
-   superImag(z.imag(), val);
+T superImag(MultiComplex<N, T> &z) { 
+   return z[1<<N-1];
 }
-template <class T>
-void superImag(MultiComplex<0, T> &z, T *val) { 
-    *val = z.imag();
-}
+
 
 template<unsigned N, class T>
 void randomize(MultiComplex<N, T> &z) {

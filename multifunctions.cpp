@@ -1,8 +1,6 @@
 #include"multicomplex.cpp"
 namespace MComplex {
 
-
-
     template<class T>
     T sin(const T& val) { return std::sin(val); }
     template<class T>
@@ -22,7 +20,7 @@ namespace MComplex {
     template<class T>
     T atan(const T& val) { return std::atan(val); }
     template<class T>
-    T atan2(const T& val) { return std::atan2(val); } 
+    T atan2(const T& y, const T& x) { return std::atan2(y, x); } 
     template<class T>
     T asinh(const T& val) { return std::asinh(val); }
     template<class T>
@@ -132,16 +130,14 @@ namespace MComplex {
     }
     template<unsigned N, class T>
     MultiComplex<N, T> atan2(const MultiComplex<N, T>& z,const MultiComplex<N, T>& w) { // z/w
-        T y = z[0], x = w[0]; // only make decision on the normal complex branch cuts, so log(exp(x)) only works for complex, etc.
-        if (x > 0) {
-            return 2 * atan( z / (pow(z * z + w * w, 0.5) + w) );
-        } else if (x <= 0 && y != 0) {
-            return 2 * atan(     (pow(z * z + w * w, 0.5) - w) / z );
-        } else if (x <  0 && y == 0) {
-            return promote<N, T>(M_PI);
-        } else  { // (x == 0 && y == 0)
-            return MultiComplex<N, T>{};
-        }
+        T y = z[0], x = w[0]; // only make decision on the usual complex branch cuts, so log(exp(x)) only works for complex, etc.ç
+        std::cout << "///////// args:" << z << " - " << w << std::endl;
+        std::cout << "basics atan2: " << y << " " << x << std::endl;
+
+        if (z == MultiComplex<N, T>{}) return promote<N>(atan2(w.imag(), w.real()));
+        return 2 * atan(     (pow(z * z + w * w, 0.5) - w) / z );
+
+        
     }
     template<unsigned N, class T>
     MultiComplex<N-1, T> abs(const MultiComplex<N, T>& z) {
