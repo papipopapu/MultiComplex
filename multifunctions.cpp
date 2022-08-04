@@ -1,7 +1,6 @@
 #include"multicomplex.cpp"
 namespace MComplex {
-    static constexpr int EXPANSION_TERMS = 10;
-    static constexpr int HALLEY_ITER = 5;
+
 
 
     template<class T>
@@ -23,6 +22,8 @@ namespace MComplex {
     template<class T>
     T atan(const T& val) { return std::atan(val); }
     template<class T>
+    T atan2(const T& val) { return std::atan2(val); } 
+    template<class T>
     T asinh(const T& val) { return std::asinh(val); }
     template<class T>
     T acosh(const T& val) { return std::acosh(val); }
@@ -34,6 +35,11 @@ namespace MComplex {
     T log(const T& val) { return std::log(val); }
     template<class T>
     T exp(const T& val) { return std::exp(val); }
+    template<class T>
+    T pow(const T& val, const T& exp) { return std::pow(val, exp); }
+    template<class T>
+    T abs(const T& val) { return std::abs(val); }
+  
 
 
 
@@ -68,10 +74,9 @@ namespace MComplex {
     T abs(const MultiComplex<0, T>& z);
     template<unsigned N, class T>
     MultiComplex<N, T> atan(const MultiComplex<N, T>& z);
+    template<unsigned N, class T>
+    MultiComplex<N, T> atan2(const MultiComplex<N, T>& z, const MultiComplex<N, T>& w);
     
-
-
-
 
     template<unsigned N, class T>
     MultiComplex<N, T> tan(const MultiComplex<N, T>& z) {
@@ -86,7 +91,7 @@ namespace MComplex {
     }
     template<unsigned N, class T>
     MultiComplex<N, T> cos(const MultiComplex<N, T>& z) {
-        MultiComplex<N, T> ret{cos(z.real()) * cosh(z.imag()), sin(z.real()) * sinh(z.imag())};        
+        MultiComplex<N, T> ret{cos(z.real()) * cosh(z.imag()), -sin(z.real()) * sinh(z.imag())};        
         return ret;
     }
     template<unsigned N, class T>
@@ -107,32 +112,53 @@ namespace MComplex {
     }
     template<unsigned N, class T>
     MultiComplex<N, T> log(const MultiComplex<N, T>& z) {  
-        MultiComplex<N, T> y = promote<N, T>(log(z[0]));
-        MultiComplex<N, T> gamma;
-        for(unsigned i = 1; i < HALLEY_ITER; i++) {
-            gamma = z * exp(-y);
-            y -= 2 * (1 - gamma) / (1 + gamma);
-        }
-        return y;
+        return MultiComplex<N, T>{log(abs(z)), arg(z)};
+    }
+
+    template<unsigned N, class T>
+    MultiComplex<N, T> pow(const MultiComplex<N, T>& z, const T& val) {
+        return exp(val * log(z));
     }
     template<unsigned N, class T>
     MultiComplex<N, T> pow(const MultiComplex<N, T>& z, const int& n) {
-        MultiComplex<N, T> ret;
-        if (n == 0) return ret;
-        ret = z;
-        for (int i = 1; i < n; i++) {
-            ret *= z;
-        }
+        if (n == 0) return MultiComplex<N, T>{1};
+        MultiComplex<N, T> ret = z;
+        for (int i = 1; i < n; i++) ret *= z;
         return ret;
     }
     template<unsigned N, class T>
     MultiComplex<N, T> atan(const MultiComplex<N, T>& z) {
-        const int terms = 5;
-        MultiComplex<N, T> ret;
-        for (int n = 0; n < EXPANSION_TERMS; n++) {
-            ret += ((-1)^n) * pow(z, 2*n+1) / (2*n+1);
-        }
-        return ret;
+        return I<N, T>() * 0.5 * log((I<N, T>() + z) / (I<N, T>() - z));
     }
+    template<unsigned N, class T>
+    MultiComplex<N, T> atan2(const MultiComplex<N, T>& z,const MultiComplex<N, T>& w) { // z/w
+        T y = z[0], x = w[0]; // only make decision on the normal complex branch cuts, so log(exp(x)) only works for complex, etc.
+        if (x > 0) {
+            return 2 * atan( z / (pow(z * z + w * w, 0.5) + w) );
+        } else if (x <= 0 && y != 0) {
+            return 2 * atan(     (pow(z * z + w * w, 0.5) - w) / z );
+        } else if (x <  0 && y == 0) {
+            return promote<N, T>(M_PI);
+        } else  { // (x == 0 && y == 0)
+            return MultiComplex<N, T>{};
+        }
+    }
+    template<unsigned N, class T>
+    MultiComplex<N-1, T> abs(const MultiComplex<N, T>& z) {
+        return pow(z.real() * z.real() + z.imag() * z.imag(), 0.5);
+    }
+    template<class T>
+    T abs(const MultiComplex<0, T>& z) {
+        return pow(z.real() * z.real() + z.imag() * z.imag(), 0.5);
+    }
+    template<unsigned N, class T>
+    MultiComplex<N-1, T> arg(const MultiComplex<N, T>& z) {
+        return atan2(z.imag(), z.real());
+    }
+    template<class T>
+    T arg(const MultiComplex<0, T>& z) {
+        return std::atan2(z.imag(), z.real());
+    }
+
 };
 

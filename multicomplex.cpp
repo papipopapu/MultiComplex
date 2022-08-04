@@ -40,7 +40,7 @@ struct MultiComplex { // only allow operations between same order MultiComplex
         MultiComplex<N-1, T> den = w.z1 * w.z1 + w.z2 * w.z2;
         MultiComplex<N-1, T> tmp = z2 * w.z1 - z1 * w.z2;
         z1 = (z1 * w.z1 + z2 * w.z2) / den; 
-        z2 = tmp                    / den;
+        z2 = tmp                     / den;
         return *this; }
 
     template<class T2, ENFORCE(std::is_arithmetic<T2>::value)>
@@ -256,7 +256,8 @@ MultiComplex<N1, T> promote(const MultiComplex<N2, T>& z) {
 }
 template<unsigned N, class T>
 MultiComplex<N, T> promote(const T& val) {
-    MultiComplex<N, T> ret = val * R<N, T>();
+    MultiComplex<N, T> ret;
+    ret[0] = val;
     return ret;
 }
 
