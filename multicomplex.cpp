@@ -51,15 +51,15 @@ struct MultiComplex { // only allow operations between same order MultiComplex
         return os;
     }
     T& operator[](const unsigned& i) {
-        if (i > N) {
-            return z2[i - N];
+        if (i >= (1<<N)) {
+            return z2[i - (1<<N)];
         } else {
             return z1[i];
         }
     } 
     T operator[](const unsigned& i) const {
-        if (i > N) {
-            return z2[i - N];
+        if (i >= (1<<N)) {
+            return z2[i - (1<<N)];
         } else {
             return z1[i];
         }
@@ -103,7 +103,7 @@ bool operator!=(const MultiComplex<N, T1>& z, const MultiComplex<N, T2>& w) { re
 
 template<class T>
 struct MultiComplex<0, T> { // special shit for bicomplex N = 0 (2^(1+N) complex numbers)
-    T z1, z2;
+    T z1 = 0, z2 = 0;
     T& real()       { return z1; }
     T& imag()       { return z2; }
     T  real() const { return z1; }
@@ -197,7 +197,7 @@ bool operator!=(const MultiComplex<0, T1>& z, const MultiComplex<0, T2>& w) { re
 
 template<unsigned N, class T>
 T superImag(MultiComplex<N, T> &z) { 
-   return z[1<<N-1];
+   return z[1<<N];
 }
 
 
@@ -217,13 +217,11 @@ void randomize(MultiComplex<0, T> &z) {
 }
 
 template<unsigned N, class T>
-void toOne(MultiComplex<N, T> &z) {
-    toOne(z.real());
-    toOne(z.imag());
-}
-template<class T>
-void toOne(MultiComplex<0, T> &z) {
-    z = MultiComplex<0, T>{1, 0};
+MultiComplex<N, T> Base() {
+    MultiComplex<N, T> z;
+    z[1] = 1;
+    for (int i=1; i<=N; i++) z[(1<<i)]=1;
+    return z;
 }
 
 template<unsigned N, class T, ENFORCE(N==0)>
