@@ -1,6 +1,6 @@
 # multi-complex
 
-Multic complex numbers allow for fast, machine limit precision differenciation ([e.g.](https://dl.acm.org/doi/abs/10.1145/3378538)), while also being
+Multi complex numbers allow for fast, machine limit precision differenciation ([e.g.](https://dl.acm.org/doi/abs/10.1145/3378538)), while also being
 on their own a pretty interesting subject.
 
 This is a fast, concise, no external dependencies implementation of multicomplex numbers through recursive templating. Compiles slow, runs like
