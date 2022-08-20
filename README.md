@@ -8,4 +8,4 @@ lightning. Also allows inverse functions like the logarithm and inverse trigonom
 only bijective for the first complex level (C0).
 
 It took some brain squeezing to make it actually work, and I have seen papers failing to implement inverse functions or make programs fast enough
-to be used in differentiation applicatoins, so please reference the source if used.
+to be used in differentiation applicatoins, so please reference the existance of this repo if used :). 
