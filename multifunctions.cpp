@@ -1,4 +1,5 @@
 #include"multicomplex.cpp"
+# define M_PI 3.14159265358979323846
 namespace MComplex {
 
 
@@ -61,7 +62,7 @@ namespace MComplex {
     template<unsigned N, class T>
     MultiComplex<N-1, T> arg(const MultiComplex<N, T>& z);
     template<class T>
-    T arg(const MultiComplex<0, T>& z);
+    T arg(const MultiComplex<1, T>& z);
     template<unsigned N, class T>
     MultiComplex<N, T> pow(const MultiComplex<N, T>& z, const MultiComplex<N, T>& w);
     template<unsigned N, class T>
@@ -71,7 +72,7 @@ namespace MComplex {
     template<unsigned N, class T>
     MultiComplex<N-1, T> abs(const MultiComplex<N, T>& z);
     template<class T>
-    T abs(const MultiComplex<0, T>& z);
+    T abs(const MultiComplex<1, T>& z);
     template<unsigned N, class T>
     MultiComplex<N, T> atan(const MultiComplex<N, T>& z);
     template<unsigned N, class T>
@@ -148,7 +149,7 @@ namespace MComplex {
         return pow(z.real() * z.real() + z.imag() * z.imag(), 0.5);
     }
     template<class T>
-    T abs(const MultiComplex<0, T>& z) {
+    T abs(const MultiComplex<1, T>& z) {
         return pow(z.real() * z.real() + z.imag() * z.imag(), 0.5);
     }
     template<unsigned N, class T>
@@ -156,7 +157,7 @@ namespace MComplex {
         return atan2(z.imag(), z.real());
     }
     template<class T>
-    T arg(const MultiComplex<0, T>& z) {
+    T arg(const MultiComplex<1, T>& z) {
         return std::atan2(z.imag(), z.real());
     }
 

@@ -1,7 +1,11 @@
 #include<iostream>
 #include<string>
 #include<random>
+#include<cmath>
 #include<chrono>
+
+using namespace std;
+#include<iostream>
 
 namespace MComplex {
 #define ENFORCE(x) typename = typename std::enable_if<(x)>::type
@@ -50,16 +54,21 @@ struct MultiComplex { // only allow operations between same order MultiComplex
         os << "(" << w.z1 << " + " << w.z2 << "i" << N << ")";
         return os;
     }
-    T& operator[](const unsigned& i) {
-        if (i > N) {
-            return z2[i - N];
+    T& operator[](int i) {
+        int K = N;
+        int bruh = 2<<(K-1);
+        if (i >= bruh) {
+            return z2[i - bruh];
         } else {
+            cout << "here";
             return z1[i];
         }
     } 
-    T operator[](const unsigned& i) const {
-        if (i > N) {
-            return z2[i - N];
+    T operator[](int i) const {
+        int K = N;
+        int bruh = 1<<(K-1);
+        if (i >= bruh) {
+            return z2[i - bruh];
         } else {
             return z1[i];
         }
@@ -102,56 +111,56 @@ template<unsigned N, class T1, class T2>
 bool operator!=(const MultiComplex<N, T1>& z, const MultiComplex<N, T2>& w) { return !(z==w); }
 
 template<class T>
-struct MultiComplex<0, T> { // special shit for bicomplex N = 0 (2^(1+N) complex numbers)
+struct MultiComplex<1, T> { // special shit for bicomplex N = 0 (2^(1+N) complex numbers)
     T z1, z2;
     T& real()       { return z1; }
     T& imag()       { return z2; }
     T  real() const { return z1; }
     T  imag() const { return z2; }
     void printN() const { std::cout << 0 << std::endl; }
-    MultiComplex<0, T> operator-() const { return MultiComplex<0, T>{-z1, -z2}; }
+    MultiComplex<1, T> operator-() const { return MultiComplex<1, T>{-z1, -z2}; }
     // overload operator unary +
-    MultiComplex<0, T> operator+() const { return MultiComplex<0, T>{z1, z2}; }
+    MultiComplex<1, T> operator+() const { return MultiComplex<1, T>{z1, z2}; }
     // interact with same order MultiComplex
     template<class T2>
-    MultiComplex<0, T>& operator+=(const MultiComplex<0, T2>& w) { z1 += w.z1; z2 += w.z2;return *this; }
+    MultiComplex<1, T>& operator+=(const MultiComplex<1, T2>& w) { z1 += w.z1; z2 += w.z2;return *this; }
     // we only interact with other (lower) types if they are Complex or Real
     template<class T2, ENFORCE(std::is_arithmetic<T2>::value)>
-    MultiComplex<0, T>& operator+=(T2 w) { z1 += w; return *this; }
+    MultiComplex<1, T>& operator+=(T2 w) { z1 += w; return *this; }
     // interact with same order MultiComplex
     template<class T2>
-    MultiComplex<0, T>& operator-=(const MultiComplex<0, T2>& w) { z1 -= w.z1; z2 -= w.z2; return *this; }
+    MultiComplex<1, T>& operator-=(const MultiComplex<1, T2>& w) { z1 -= w.z1; z2 -= w.z2; return *this; }
     // we only interact with other (lower) types if they are Complex or Real
     template<class T2, ENFORCE(std::is_arithmetic<T2>::value)>
-    MultiComplex<0, T>& operator-=(T2 w) { z1 -= w; return *this; }
+    MultiComplex<1, T>& operator-=(T2 w) { z1 -= w; return *this; }
     template<class T2>
-    MultiComplex<0, T>& operator*=(const MultiComplex<0, T2>& w) {
+    MultiComplex<1, T>& operator*=(const MultiComplex<1, T2>& w) {
         T tmp = z1 * w.z1 - z2 * w.z2;
         z2  = z1 * w.z2 + z2 * w.z1; z1 = tmp; return *this; }
     template<class T2, ENFORCE(std::is_arithmetic<T2>::value)>
-    MultiComplex<0, T>& operator*=(T2 w) { z1 *= w; z2 *= w; return *this; }
+    MultiComplex<1, T>& operator*=(T2 w) { z1 *= w; z2 *= w; return *this; }
     template<class T2>
-    MultiComplex<0, T>& operator/=(const MultiComplex<0, T2>& w) {
+    MultiComplex<1, T>& operator/=(const MultiComplex<1, T2>& w) {
         T den = w.z1 * w.z1 + w.z2 * w.z2;
         T tmp = z2 * w.z1 - z1 * w.z2;
         z1 = (z1 * w.z1 + z2 * w.z2) / den; 
         z2 = tmp                    / den;
         return *this; }
     template<class T2, ENFORCE(std::is_arithmetic<T2>::value)>
-    MultiComplex<0, T>& operator/=(T2 w) { z1 /= w; z2 /= w; return *this; }
+    MultiComplex<1, T>& operator/=(T2 w) { z1 /= w; z2 /= w; return *this; }
     // overload cout MultiComplex
-    friend std::ostream& operator<<(std::ostream& os, const MultiComplex<0, T>& w) {
-        os << "(" << w.z1 << " + " << w.z2 << "i" << 0 << ")";
+    friend std::ostream& operator<<(std::ostream& os, const MultiComplex<1, T>& w) {
+        os << "(" << w.z1 << " + " << w.z2 << "i" << 1 << ")";
         return os;
     }
-    T& operator[](const unsigned& i) {
+    T& operator[](int i) {
         if (i < 1) {
             return z1;
         } else {
             return z2;
         }
     } 
-    T operator[](const unsigned& i) const {
+    T operator[](int i) const {
         if (i < 1) {
             return z1;
         } else {
@@ -161,38 +170,38 @@ struct MultiComplex<0, T> { // special shit for bicomplex N = 0 (2^(1+N) complex
 };
 // all additions
 template<class T1, class T2>
-MultiComplex<0, T1> operator+(MultiComplex<0, T1> z, const MultiComplex<0, T2>& w) { z += w; return z; }
+MultiComplex<1, T1> operator+(MultiComplex<1, T1> z, const MultiComplex<1, T2>& w) { z += w; return z; }
 template<class T1, class T2, ENFORCE(std::is_arithmetic<T2>::value)>
-MultiComplex<0, T1> operator+(MultiComplex<0, T1> z, const T2& w) { z += w; return z; }
+MultiComplex<1, T1> operator+(MultiComplex<1, T1> z, const T2& w) { z += w; return z; }
 template<class T1, class T2, ENFORCE(std::is_arithmetic<T2>::value)>
-MultiComplex<0, T1> operator+(const T2& w, MultiComplex<0, T1> z) { z += w; return z; }
+MultiComplex<1, T1> operator+(const T2& w, MultiComplex<1, T1> z) { z += w; return z; }
 // all substractions
 template<class T1, class T2>
-MultiComplex<0, T1> operator-(MultiComplex<0, T1> z, const MultiComplex<0, T2>& w) { z -= w; return z; }
+MultiComplex<1, T1> operator-(MultiComplex<1, T1> z, const MultiComplex<1, T2>& w) { z -= w; return z; }
 template<class T1, class T2, ENFORCE(std::is_arithmetic<T2>::value)>
-MultiComplex<0, T1> operator-(MultiComplex<0, T1> z, const T2& w) { z -= w; return z; }
+MultiComplex<1, T1> operator-(MultiComplex<1, T1> z, const T2& w) { z -= w; return z; }
 template<class T1, class T2, ENFORCE(std::is_arithmetic<T2>::value)>
-MultiComplex<0, T1> operator-(const T2& w, MultiComplex<0, T1> z) { z -= w; return z; }
+MultiComplex<1, T1> operator-(const T2& w, MultiComplex<1, T1> z) { z -= w; return z; }
 // all multiplications
 template<class T1, class T2>
-MultiComplex<0, T1> operator*(MultiComplex<0, T1> z, const MultiComplex<0, T2>& w) { z *= w; return z; }
+MultiComplex<1, T1> operator*(MultiComplex<1, T1> z, const MultiComplex<1, T2>& w) { z *= w; return z; }
 template<class T1, class T2, ENFORCE(std::is_arithmetic<T2>::value)>
-MultiComplex<0, T1> operator*(MultiComplex<0, T1> z, const T2& w) { z *= w; return z; }
+MultiComplex<1, T1> operator*(MultiComplex<1, T1> z, const T2& w) { z *= w; return z; }
 template<class T1, class T2, ENFORCE(std::is_arithmetic<T2>::value)>
-MultiComplex<0, T1> operator*(const T2& w, MultiComplex<0, T1> z) { z *= w; return z; }
+MultiComplex<1, T1> operator*(const T2& w, MultiComplex<1, T1> z) { z *= w; return z; }
 // all divisions
 template<class T1, class T2>
-MultiComplex<0, T1> operator/(MultiComplex<0, T1> z, const MultiComplex<0, T2>& w) { z /= w; return z; }
+MultiComplex<1, T1> operator/(MultiComplex<1, T1> z, const MultiComplex<1, T2>& w) { z /= w; return z; }
 template<class T1, class T2, ENFORCE(std::is_arithmetic<T2>::value)>
-MultiComplex<0, T1> operator/(MultiComplex<0, T1> z, const T2& w) { z /= w; return z; }
+MultiComplex<1, T1> operator/(MultiComplex<1, T1> z, const T2& w) { z /= w; return z; }
 template<class T1, class T2, ENFORCE(std::is_arithmetic<T2>::value)>
-MultiComplex<0, T1> operator/(const T2& w, MultiComplex<0, T1> z) { z /= w; return z; }
+MultiComplex<1, T1> operator/(const T2& w, MultiComplex<1, T1> z) { z /= w; return z; }
 
 template<class T1, class T2>
-bool operator==(const MultiComplex<0, T1>& z, const MultiComplex<0, T2>& w) { return z.z1 == w.z1 && z.z2 == w.z2; }
+bool operator==(const MultiComplex<1, T1>& z, const MultiComplex<1, T2>& w) { return z.z1 == w.z1 && z.z2 == w.z2; }
 
 template<class T1, class T2>
-bool operator!=(const MultiComplex<0, T1>& z, const MultiComplex<0, T2>& w) { return !(z==w); }
+bool operator!=(const MultiComplex<1, T1>& z, const MultiComplex<1, T2>& w) { return !(z==w); }
 
 
 template<unsigned N, class T>
@@ -200,7 +209,7 @@ void superImag(MultiComplex<N, T> &z, T *val) {
    superImag(z.imag(), val);
 }
 template <class T>
-void superImag(MultiComplex<0, T> &z, T *val) { 
+void superImag(MultiComplex<1, T> &z, T *val) { 
     *val = z.imag();
 }
 
@@ -211,12 +220,12 @@ void randomize(MultiComplex<N, T> &z) {
     randomize(z.imag());
 }
 template<class T>
-void randomize(MultiComplex<0, T> &z) {
+void randomize(MultiComplex<1, T> &z) {
     // create random MultiComplex with deterministic seed
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<T> dist(-1, 1);
-    z = MultiComplex<0, T>{dist(gen), dist(gen)};
+    z = MultiComplex<1, T>{dist(gen), dist(gen)};
 }
 
 template<unsigned N, class T>
@@ -225,24 +234,24 @@ void toOne(MultiComplex<N, T> &z) {
     toOne(z.imag());
 }
 template<class T>
-void toOne(MultiComplex<0, T> &z) {
-    z = MultiComplex<0, T>{1, 0};
+void toOne(MultiComplex<1, T> &z) {
+    z = MultiComplex<1, T>{1, 0};
 }
 
-template<unsigned N, class T, ENFORCE(N==0)>
-MultiComplex<0, T> I() {
-    return MultiComplex<0, T>{0, 1};
+template<unsigned N, class T, ENFORCE(N==1)>
+MultiComplex<1, T> I() {
+    return MultiComplex<1, T>{0, 1};
 }
-template<unsigned N, class T, ENFORCE(N==0)>
-MultiComplex<0, T> R() {
-    return MultiComplex<0, T>{1, 0};
+template<unsigned N, class T, ENFORCE(N==1)>
+MultiComplex<1, T> R() {
+    return MultiComplex<1, T>{1, 0};
 }
 
-template<unsigned N, class T, ENFORCE(N>0)>
+template<unsigned N, class T, ENFORCE(N>1)>
 MultiComplex<N, T> R() {
     return MultiComplex<N, T>{R<N-1, T>(), MultiComplex<N-1, T>()};
 }
-template<unsigned N, class T, ENFORCE(N>0)>
+template<unsigned N, class T, ENFORCE(N>1)>
 MultiComplex<N, T> I() {
     return MultiComplex<N, T>{MultiComplex<N-1, T>(), R<N-1, T>()};
 }
@@ -261,7 +270,14 @@ MultiComplex<N, T> promote(const T& val) {
     return ret;
 }
 
-
+template<unsigned N, class T>
+MultiComplex<N, T> ImagUnit() {
+    MultiComplex<N, T> ret{};
+    for (int i = 0; i < N; ++i) {
+        ret[1<<i] = 1;
+    }
+    return ret;
+}
 
 };
 
